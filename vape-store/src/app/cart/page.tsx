@@ -9,7 +9,7 @@ interface CartItem {
   id: string
   name: string
   price: number
-  images: string[] | null  // Changed to allow null
+  images: string[]  // Now always string[]
   quantity: number
   stock: number
 }
@@ -86,13 +86,11 @@ export default function CartPage() {
       <h1 className="text-3xl font-bold text-gray-800 mb-8">Shopping Cart</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Cart Items */}
         <div className="lg:col-span-2">
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
             <div className="divide-y divide-gray-200">
               {cart.map((item) => (
                 <div key={item.id} className="p-4 flex gap-4">
-                  {/* Image */}
                   <div className="relative w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                     {item.images && item.images.length > 0 && item.images[0] ? (
                       <Image
@@ -108,7 +106,6 @@ export default function CartPage() {
                     )}
                   </div>
 
-                  {/* Info */}
                   <div className="flex-1">
                     <Link href={`/products/${item.id}`} className="font-semibold text-gray-800 hover:text-purple-600">
                       {item.name}
@@ -140,7 +137,6 @@ export default function CartPage() {
                     </div>
                   </div>
 
-                  {/* Total */}
                   <div className="text-right">
                     <p className="font-semibold text-gray-800">
                       ₹{(item.price * item.quantity).toLocaleString()}
@@ -158,7 +154,6 @@ export default function CartPage() {
           </div>
         </div>
 
-        {/* Order Summary */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
             <h2 className="text-xl font-bold text-gray-800 mb-4">Order Summary</h2>
