@@ -9,7 +9,7 @@ interface CartItem {
   id: string
   name: string
   price: number
-  images: string[]
+  images: string[] | null  // Changed to allow null
   quantity: number
   stock: number
 }
@@ -94,7 +94,7 @@ export default function CartPage() {
                 <div key={item.id} className="p-4 flex gap-4">
                   {/* Image */}
                   <div className="relative w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                    {item.images && item.images[0] ? (
+                    {item.images && item.images.length > 0 && item.images[0] ? (
                       <Image
                         src={item.images[0]}
                         alt={item.name}
