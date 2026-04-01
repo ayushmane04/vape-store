@@ -29,8 +29,7 @@ export default function AdminProductForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...data,
-          images: data.images ? data.images.split(',').map(url => url.trim()) : [],
-          slug: data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+images: data.images && data.images.trim() ? data.images.split(',').map(url => url.trim()) : [],          slug: data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
         })
       })
 
