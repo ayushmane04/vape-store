@@ -16,6 +16,17 @@ export default async function Home() {
     take: 4
   })
 
+  // Transform products to ensure images is always an array
+  const transformedFeatured = featuredProducts.map(product => ({
+    ...product,
+    images: Array.isArray(product.images) ? product.images : []
+  }))
+
+  const transformedDeals = deals.map(product => ({
+    ...product,
+    images: Array.isArray(product.images) ? product.images : []
+  }))
+
   return (
     <div>
       <HeroSection />
@@ -23,18 +34,18 @@ export default async function Home() {
       
       <section className="container-custom py-12">
         <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">Featured Products</h2>
-        {featuredProducts.length > 0 ? (
-          <ProductGrid products={featuredProducts} />
+        {transformedFeatured.length > 0 ? (
+          <ProductGrid products={transformedFeatured} />
         ) : (
           <p className="text-center text-gray-500">No products yet. Add some in the admin panel!</p>
         )}
       </section>
       
-      {deals.length > 0 && (
+      {transformedDeals.length > 0 && (
         <section className="bg-gradient-to-r from-purple-50 to-pink-50 py-12">
           <div className="container-custom">
             <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">Multi-buy Deals & Clearance</h2>
-            <ProductGrid products={deals} showDiscount />
+            <ProductGrid products={transformedDeals} showDiscount />
           </div>
         </section>
       )}
