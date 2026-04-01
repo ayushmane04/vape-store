@@ -7,7 +7,7 @@ interface Product {
   id: string
   name: string
   price: number
-  images: string[]
+  images: string[] | null
   stock: number
 }
 
@@ -35,7 +35,7 @@ export default function AddToCartButton({ product }: { product: Product }) {
       }
       existingItem.quantity = newQuantity
     } else {
-      cart.push({ ...product, quantity })
+      cart.push({ ...product, quantity, images: product.images || [] })
     }
     
     localStorage.setItem('cart', JSON.stringify(cart))
