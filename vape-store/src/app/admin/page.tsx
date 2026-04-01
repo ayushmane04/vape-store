@@ -14,22 +14,25 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (status === 'loading') return
-    if (!session || session.user?.role !== 'ADMIN') {
+    
+    // Check if user is logged in and is admin
+    if (!session) {
       router.push('/auth/signin')
+    } else if (session.user?.role !== 'ADMIN') {
+      // If logged in but not admin, redirect to home
+      router.push('/')
     }
   }, [session, status, router])
 
   if (status === 'loading') {
     return (
       <div className="flex justify-center items-center h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
       </div>
     )
   }
 
+  // Show nothing while checking
   if (!session || session.user?.role !== 'ADMIN') {
     return null
   }
