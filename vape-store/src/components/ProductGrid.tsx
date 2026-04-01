@@ -3,16 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
-
-interface Product {
-  id: string
-  name: string
-  slug: string
-  price: number
-  comparePrice?: number | null
-  images: string[] | null
-  stock: number
-}
+import { Product } from '@/types/product'
 
 export default function ProductGrid({ products, showDiscount = false }: { products: Product[], showDiscount?: boolean }) {
   const calculateDiscount = (price: number, comparePrice?: number | null) => {
@@ -27,7 +18,7 @@ export default function ProductGrid({ products, showDiscount = false }: { produc
     if (existingItem) {
       existingItem.quantity += 1
     } else {
-      cart.push({ ...product, quantity: 1, images: product.images || [] })
+      cart.push({ ...product, quantity: 1 })
     }
     
     localStorage.setItem('cart', JSON.stringify(cart))
@@ -43,15 +34,14 @@ export default function ProductGrid({ products, showDiscount = false }: { produc
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       {products.map((product) => {
         const discount = showDiscount ? calculateDiscount(product.price, product.comparePrice) : null
-        const productImages = Array.isArray(product.images) ? product.images : []
         
         return (
           <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 group">
             <Link href={`/products/${product.slug}`}>
               <div className="relative h-64 bg-gray-100">
-                {productImages.length > 0 && productImages[0] ? (
+                {product.images && product.images.length > 0 && product.images[0] ? (
                   <Image
-                    src={productImages[0]}
+                    src={product.images[0]}
                     alt={product.name}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
