@@ -10,7 +10,7 @@ interface Product {
   slug: string
   price: number
   comparePrice?: number | null
-  images: string[]
+  images: string[] | null
   stock: number
 }
 
@@ -27,7 +27,7 @@ export default function ProductGrid({ products, showDiscount = false }: { produc
     if (existingItem) {
       existingItem.quantity += 1
     } else {
-      cart.push({ ...product, quantity: 1 })
+      cart.push({ ...product, quantity: 1, images: product.images || [] })
     }
     
     localStorage.setItem('cart', JSON.stringify(cart))
@@ -43,14 +43,15 @@ export default function ProductGrid({ products, showDiscount = false }: { produc
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       {products.map((product) => {
         const discount = showDiscount ? calculateDiscount(product.price, product.comparePrice) : null
+        const productImages = Array.isArray(product.images) ? product.images : []
         
         return (
           <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 group">
             <Link href={`/products/${product.slug}`}>
               <div className="relative h-64 bg-gray-100">
-                {product.images && product.images[0] ? (
+                {productImages.length > 0 && productImages[0] ? (
                   <Image
-                    src={product.images[0]}
+                    src={productImages[0]}
                     alt={product.name}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
