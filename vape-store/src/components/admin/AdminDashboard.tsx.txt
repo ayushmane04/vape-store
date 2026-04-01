@@ -1,0 +1,73 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { prisma } from '@/lib/prisma'
+
+interface DashboardStats {
+  totalProducts: number
+  totalOrders: number
+  totalRevenue: number
+  lowStock: number
+}
+
+export default function AdminDashboard() {
+  const [stats, setStats] = useState<DashboardStats>({
+    totalProducts: 0,
+    totalOrders: 0,
+    totalRevenue: 0,
+    lowStock: 0
+  })
+
+  useEffect(() => {
+    fetchStats()
+  }, [])
+
+  const fetchStats = async () => {
+    const res = await fetch('/api/admin/stats')
+    const data = await res.json()
+    setStats(data)
+  }
+
+  const statsCards = [
+    { title: 'Total Products', value: stats.totalProducts, color: 'bg-blue-500' },
+    { title: 'Total Orders', value: stats.totalOrders, color: 'bg-green-500' },
+    { title: 'Total Revenue', value: `₹${stats.totalRevenue.toLocaleString()}`, color: 'bg-purple-500' },
+    { title: 'Low Stock Items', value: stats.lowStock, color: 'bg-red-500' },
+  ]
+
+  return (
+    <div>
+      <h2 className="text-xl font-semibold mb-6">Dashboard Overview</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {statsCards.map((card, index) => (
+          <div key={index} className="bg-white rounded-lg shadow-md p-6">
+            <div className={`${card.color} w-12 h-12 rounded-lg flex items-center justify-center mb-4`}>
+              <span className="text-white text-xl font-bold">{card.value.toString().charAt(0)}</span>
+            </div>
+            <h3 className="text-gray-600 text-sm">{card.title}</h3>
+            <p className="text-2xl font-bold text-gray-800">{card.value}</p>
+          </div>
+        ))}
+      </div>
+      
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h3 className="font-semibold mb-4">Quick Actions</h3>
+        <div className="flex gap-4">
+          <button
+            onClick={() => window.location.href = '/admin?tab=products'}
+            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+          >
+            Add New Product
+          </button>
+          <button
+            onClick={() => window.location.href = '/admin?tab=orders'}
+            className="px-4 py-2 border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50"
+          >
+            View Orders
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
