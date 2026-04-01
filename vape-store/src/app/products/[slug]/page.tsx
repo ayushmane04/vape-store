@@ -31,6 +31,17 @@ export default async function ProductPage({ params }: ProductPageProps) {
     ? Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)
     : null
 
+  const productImages = Array.isArray(product.images) ? product.images : []
+  const transformedProduct = {
+    ...product,
+    images: productImages
+  }
+
+  const transformedRelated = relatedProducts.map(related => ({
+    ...related,
+    images: Array.isArray(related.images) ? related.images : []
+  }))
+
   return (
     <div className="container-custom py-8">
       {/* Breadcrumb */}
@@ -46,9 +57,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
         {/* Product Images */}
         <div className="space-y-4">
           <div className="bg-gray-100 rounded-lg overflow-hidden relative h-96">
-            {product.images && product.images[0] ? (
+            {productImages.length > 0 && productImages[0] ? (
               <Image
-                src={product.images[0]}
+                src={productImages[0]}
                 alt={product.name}
                 fill
                 className="object-contain"
@@ -60,9 +71,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
               </div>
             )}
           </div>
-          {product.images && product.images.length > 1 && (
+          {productImages.length > 1 && (
             <div className="grid grid-cols-4 gap-2">
-              {product.images.slice(1, 5).map((image: string, index: number) => (
+              {productImages.slice(1, 5).map((image: string, index: number) => (
                 <div key={index} className="bg-gray-100 rounded-lg overflow-hidden relative h-20 cursor-pointer hover:opacity-75">
                   <Image
                     src={image}
@@ -122,7 +133,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </div>
 
           {/* Add to Cart */}
-          <AddToCartButton product={product} />
+          <AddToCartButton product={transformedProduct} />
 
           {/* Shipping Info */}
           <div className="mt-6 bg-gray-50 p-4 rounded-lg">
@@ -138,11 +149,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
       </div>
 
       {/* Related Products */}
-      {relatedProducts.length > 0 && (
+      {transformedRelated.length > 0 && (
         <div className="mt-16">
           <h2 className="text-2xl font-bold text-gray-800 mb-6">You May Also Like</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {relatedProducts.map((related) => (
+            {transformedRelated.map((related) => (
               <Link key={related.id} href={`/products/${related.slug}`} className="group">
                 <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
                   <div className="relative h-48 bg-gray-100">
