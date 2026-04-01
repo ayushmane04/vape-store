@@ -2,14 +2,7 @@
 
 import { useState } from 'react'
 import toast from 'react-hot-toast'
-
-interface Product {
-  id: string
-  name: string
-  price: number
-  images: string[] | null
-  stock: number
-}
+import { Product } from '@/types/product'
 
 export default function AddToCartButton({ product }: { product: Product }) {
   const [quantity, setQuantity] = useState(1)
@@ -35,7 +28,7 @@ export default function AddToCartButton({ product }: { product: Product }) {
       }
       existingItem.quantity = newQuantity
     } else {
-      cart.push({ ...product, quantity, images: product.images || [] })
+      cart.push({ ...product, quantity })
     }
     
     localStorage.setItem('cart', JSON.stringify(cart))
