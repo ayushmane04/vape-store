@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import AddToCartButton from '@/components/AddToCartButton'
+import { Product } from '@/types/product'
 
 interface ProductPageProps {
   params: {
@@ -11,36 +12,35 @@ interface ProductPageProps {
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
-  const product = await prisma.product.findUnique({
+  const productRaw = await prisma.product.findUnique({
     where: { slug: params.slug }
   })
 
-  if (!product) {
+  if (!productRaw) {
     notFound()
   }
 
-  const relatedProducts = await prisma.product.findMany({
+  const relatedRaw = await prisma.product.findMany({
     where: {
-      category: product.category,
-      id: { not: product.id }
+      category: productRaw.category,
+      id: { not: productRaw.id }
     },
     take: 4
   })
 
+  const transformProduct = (product: any): Product => ({
+    ...product,
+    images: Array.isArray(product.images) ? product.images : [],
+    tags: Array.isArray(product.tags) ? product.tags : null,
+    comparePrice: product.comparePrice ?? null,
+  })
+
+  const product = transformProduct(productRaw)
+  const relatedProducts = relatedRaw.map(transformProduct)
+
   const discount = product.comparePrice 
     ? Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)
     : null
-
-  const productImages = Array.isArray(product.images) ? product.images : []
-  const transformedProduct = {
-    ...product,
-    images: productImages
-  }
-
-  const transformedRelated = relatedProducts.map(related => ({
-    ...related,
-    images: Array.isArray(related.images) ? related.images : []
-  }))
 
   return (
     <div className="container-custom py-8">
@@ -57,9 +57,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
         {/* Product Images */}
         <div className="space-y-4">
           <div className="bg-gray-100 rounded-lg overflow-hidden relative h-96">
-            {productImages.length > 0 && productImages[0] ? (
+            {product.images.length > 0 && product.images[0] ? (
               <Image
-                src={productImages[0]}
+                src={product.images[0]}
                 alt={product.name}
                 fill
                 className="object-contain"
@@ -71,9 +71,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
               </div>
             )}
           </div>
-          {productImages.length > 1 && (
+          {product.images.length > 1 && (
             <div className="grid grid-cols-4 gap-2">
-              {productImages.slice(1, 5).map((image: string, index: number) => (
+              {product.images.slice(1, 5).map((image: string, index: number) => (
                 <div key={index} className="bg-gray-100 rounded-lg overflow-hidden relative h-20 cursor-pointer hover:opacity-75">
                   <Image
                     src={image}
@@ -91,14 +91,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <div>
           <h1 className="text-3xl font-bold text-gray-800 mb-2">{product.name}</h1>
           
-          {/* Category Badge */}
           <div className="mb-4">
             <span className="inline-block bg-purple-100 text-purple-600 text-sm px-3 py-1 rounded-full">
               {product.category.replace('-', ' ').toUpperCase()}
             </span>
           </div>
 
-          {/* Price */}
           <div className="flex items-center gap-3 mb-4">
             <span className="text-3xl font-bold text-purple-600">₹{product.price.toLocaleString()}</span>
             {product.comparePrice && (
@@ -113,7 +111,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
             )}
           </div>
 
-          {/* Stock Status */}
           <div className="mb-4">
             {product.stock > 0 ? (
               <span className="text-green-600 text-sm font-medium">
@@ -126,16 +123,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
             )}
           </div>
 
-          {/* Description */}
           <div className="border-t border-b py-4 my-4">
             <h3 className="font-semibold text-gray-800 mb-2">Description</h3>
             <p className="text-gray-600 whitespace-pre-wrap">{product.description}</p>
           </div>
 
-          {/* Add to Cart */}
-          <AddToCartButton product={transformedProduct} />
+          <AddToCartButton product={product} />
 
-          {/* Shipping Info */}
           <div className="mt-6 bg-gray-50 p-4 rounded-lg">
             <h4 className="font-semibold text-gray-800 mb-2">Shipping Information</h4>
             <ul className="space-y-1 text-sm text-gray-600">
@@ -148,12 +142,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </div>
       </div>
 
-      {/* Related Products */}
-      {transformedRelated.length > 0 && (
+      {relatedProducts.length > 0 && (
         <div className="mt-16">
           <h2 className="text-2xl font-bold text-gray-800 mb-6">You May Also Like</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {transformedRelated.map((related) => (
+            {relatedProducts.map((related) => (
               <Link key={related.id} href={`/products/${related.slug}`} className="group">
                 <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
                   <div className="relative h-48 bg-gray-100">
